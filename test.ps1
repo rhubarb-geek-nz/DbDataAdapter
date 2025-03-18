@@ -20,13 +20,13 @@ try
 {
 	$Connection.Open()
 
-	$DataSet = New-Object -TypeName System.Data.DataSet
+	$DataTable = New-Object -TypeName System.Data.DataTable
 
 	$DataAdapter = New-DbDataAdapter -Connection $Connection -CommandText $CommandText
 
-	if ($DataAdapter.Fill($DataSet))
+	if ($DataAdapter.Fill($DataTable))
 	{
-		$DataSet.Tables
+		$DataTable | Format-Table
 	}
 }
 finally
