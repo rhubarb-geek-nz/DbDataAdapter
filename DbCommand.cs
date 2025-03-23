@@ -26,7 +26,7 @@ namespace RhubarbGeekNz.DbDataAdapter
                 {
                     while (reader.Read())
                     {
-                        int last = reader.FieldCount - 1;
+                        int last = reader.FieldCount;
                         PSObject result = new PSObject();
                         for (int i = 0; i < last; i++)
                         {
