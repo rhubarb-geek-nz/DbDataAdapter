@@ -3,8 +3,9 @@
 # Licensed under the MIT License.
 
 param(
-	$ConnectionString = 'Server=localhost;User ID=root;Password=mysql;Database=mysql',
-	$CommandText = 'SELECT VERSION()'
+	$NewDbConnection = 'New-SQLiteConnection',
+	$ConnectionString = 'Data Source=:memory:;',
+	$CommandText = 'SELECT sqlite_version() AS VERSION'
 )
 
 $ErrorActionPreference = "Stop"
@@ -14,7 +15,7 @@ trap
 	throw $PSItem
 }
 
-$Connection = New-MySqlConnection -ConnectionString $ConnectionString
+$Connection = & $NewDbConnection -ConnectionString $ConnectionString
 
 try
 {
