@@ -15,7 +15,17 @@ trap
 	throw $PSItem
 }
 
-$Connection = & $NewDbConnection -ConnectionString $ConnectionString
+if (1 -ne (Get-Command -Name $NewDbConnection).Count)
+{
+	throw "$NewDbConnection is ambiguous"
+}
+
+if (-not (Get-Command -Name $NewDbConnection | Where-Object { [System.Data.Common.DbConnection].IsAssignableFrom($_.OutputType.Type) } ))
+{
+	throw "OutputType for $NewDbConnection not assignable to DbConnection"
+}
+
+[System.Data.Common.DbConnection]$Connection = & $NewDbConnection -ConnectionString $ConnectionString
 
 try
 {
