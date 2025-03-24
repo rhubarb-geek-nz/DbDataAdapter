@@ -15,12 +15,19 @@ trap
 	throw $PSItem
 }
 
-if (1 -ne (Get-Command -Name $NewDbConnection).Count)
+$cmd = Get-Command -Name $NewDbConnection
+
+if (-not $cmd)
+{
+	throw "$NewDbConnection not found"
+}
+
+if (1 -ne $cmd.Count)
 {
 	throw "$NewDbConnection is ambiguous"
 }
 
-if (-not (Get-Command -Name $NewDbConnection | Where-Object { [System.Data.Common.DbConnection].IsAssignableFrom($_.OutputType.Type) } ))
+if (-not ([System.Data.Common.DbConnection].IsAssignableFrom($cmd.OutputType.Type)))
 {
 	throw "OutputType for $NewDbConnection not assignable to DbConnection"
 }
