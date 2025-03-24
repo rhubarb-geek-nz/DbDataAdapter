@@ -28,6 +28,12 @@ try
 	{
 		$DataTable | Format-Table
 	}
+
+	$Command = $Connection.CreateCommand()
+
+	$Command.CommandText = $CommandText
+
+	Read-DbCommand -Command $Command | Format-Table
 }
 finally
 {
