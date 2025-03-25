@@ -28,24 +28,34 @@ namespace RhubarbGeekNz.DbDataAdapter
                     string[] fieldNames = new string[count];
                     for (int i = 0; i < count; i++)
                     {
-                        string name = reader.GetName(i);
+                        fieldNames[i] = reader.GetName(i);
+                    }
 
-                        while (String.IsNullOrEmpty(name))
+                    for (int i = 0; i < count; i++)
+                    {
+                        string name = fieldNames[i];
+
+                        if (String.IsNullOrEmpty(name))
                         {
-                            name = "Column" + (++unnamed);
+                            bool unique = false;
 
-                            for (int j = 0; j < count; j++)
+                            while (!unique)
                             {
-                                string? column = reader.GetName(j);
-                                if ((!String.IsNullOrEmpty(column)) && name.Equals(column, StringComparison.InvariantCultureIgnoreCase))
+                                unique = true;
+                                name = "Column" + (++unnamed);
+
+                                foreach (string column in fieldNames)
                                 {
-                                    name = String.Empty;
-                                    break;
+                                    if ((!String.IsNullOrEmpty(column)) && name.Equals(column, StringComparison.InvariantCultureIgnoreCase))
+                                    {
+                                        unique = false;
+                                        break;
+                                    }
                                 }
                             }
-                        }
 
-                        fieldNames[i] = name;
+                            fieldNames[i] = name;
+                        }
                     }
 
                     while (reader.Read())
