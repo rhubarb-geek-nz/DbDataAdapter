@@ -2,7 +2,9 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Collections.Generic;
 using System.Data.Common;
+using System.Linq;
 using System.Management.Automation;
 
 namespace RhubarbGeekNz.DbDataAdapter
@@ -26,35 +28,30 @@ namespace RhubarbGeekNz.DbDataAdapter
                 {
                     int count = reader.FieldCount, unnamed = 0;
                     string[] fieldNames = new string[count];
+                    var nameSet = new HashSet<string>(StringComparer.InvariantCultureIgnoreCase);
+
                     for (int i = 0; i < count; i++)
                     {
                         fieldNames[i] = reader.GetName(i);
                     }
 
+                    nameSet.UnionWith(fieldNames.Where(s => !String.IsNullOrEmpty(s)));
+
                     for (int i = 0; i < count; i++)
                     {
-                        string name = fieldNames[i];
-
-                        if (String.IsNullOrEmpty(name))
+                        if (String.IsNullOrEmpty(fieldNames[i]))
                         {
-                            bool unique = false;
-
-                            while (!unique)
+                            while (true)
                             {
-                                unique = true;
-                                name = "Column" + (++unnamed);
+                                string name = "Column" + (++unnamed);
 
-                                foreach (string column in fieldNames)
+                                if (!nameSet.Contains(name))
                                 {
-                                    if ((!String.IsNullOrEmpty(column)) && name.Equals(column, StringComparison.InvariantCultureIgnoreCase))
-                                    {
-                                        unique = false;
-                                        break;
-                                    }
+                                    nameSet.Add(name);
+                                    fieldNames[i] = name;
+                                    break;
                                 }
                             }
-
-                            fieldNames[i] = name;
                         }
                     }
 
