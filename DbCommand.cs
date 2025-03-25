@@ -24,28 +24,37 @@ namespace RhubarbGeekNz.DbDataAdapter
 
                 using (var reader = Command.ExecuteReader())
                 {
+                    int count = reader.FieldCount, unnamed = 0;
+                    string[] fieldNames = new string[count];
+                    for (int i = 0; i < count; i++)
+                    {
+                        string name = reader.GetName(i);
+
+                        while (String.IsNullOrEmpty(name))
+                        {
+                            name = "Column" + (++unnamed);
+
+                            for (int j = 0; j < count; j++)
+                            {
+                                string? column = reader.GetName(j);
+                                if ((!String.IsNullOrEmpty(column)) && name.Equals(column, StringComparison.InvariantCultureIgnoreCase))
+                                {
+                                    name = String.Empty;
+                                    break;
+                                }
+                            }
+                        }
+
+                        fieldNames[i] = name;
+                    }
+
                     while (reader.Read())
                     {
-                        int count = reader.FieldCount, unnamed = 0;
                         PSObject result = new PSObject();
                         for (int i = 0; i < count; i++)
                         {
-                            string? name = reader.GetName(i);
-                            while (String.IsNullOrEmpty(name))
-                            {
-                                name = "Column" + (++unnamed);
-                                for (int j = 0; j < count; j++)
-                                {
-                                    string? column = reader.GetName(j);
-                                    if ((!String.IsNullOrEmpty(column)) && name.Equals(column, StringComparison.InvariantCultureIgnoreCase))
-                                    {
-                                        name = null;
-                                        break;
-                                    }
-                                }
-                            }
                             object? value = reader.IsDBNull(i) ? null : reader.GetValue(i);
-                            result.Members.Add(new PSNoteProperty(name, value));
+                            result.Members.Add(new PSNoteProperty(fieldNames[i], value));
                         }
                         WriteObject(result);
                     }
